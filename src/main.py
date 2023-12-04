@@ -1,26 +1,14 @@
+from CONST_VARS import *
 import random
-import copy
+from evo import *
+
+def main():
+    pai = ind[:]
+    pai[IND_FIT] = simula(pai, tabela)[0]
+
+    print(pai)
 
 random.seed(3)
-
-nvar = 4
-portas = ['AND', 'OR', 'XOR', 'NAND']
-nos = 10
-nFilhos = 4
-
-minTermos = [0, 1, 3, 6, 7, 8, 10, 13]
-
-IND_TAM = nos * 3 * 2
-IND_SAIDA = nos * 3
-IND_FIT = nos * 3 + 1
-
-SIM_NL = nvar + nos + 3
-SIM_NC = 2**nvar + 1
-SIM_LCOMP = SIM_NL - 1
-SIM_LSD = SIM_NL - 2
-SIM_LSE = SIM_NL - 3
-
-ind = []
 
 for i in range(IND_TAM):
     ind.append(0)
@@ -58,5 +46,5 @@ for i in range(nvar):
 for i in minTermos:
     tabela[SIM_NL -2 ][i] = 1
 
-print(ind)
-print(tabela)
+
+main()
