@@ -6,6 +6,16 @@ def main():
     pai = ind[:]
     pai[IND_FIT] = simula(pai, tabela)[0]
 
+    geracao = 0
+    while(pai[IND_FIT] < 2**nvar):
+        geracao = geracao + 1
+        
+        ativos = ligantes(pai)
+        filho = mutacao(pai, ativos, tabela)
+
+        if(filho[IND_FIT] >= pai[IND_FIT]):
+            pai = filho[:]
+
     print(pai)
 
 random.seed(3)

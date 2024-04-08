@@ -1,6 +1,7 @@
 from CONST_VARS import *
 from ports import *
 import copy
+import random
 
 def simula(ind, tabela):
     t = copy.deepcopy(tabela)
@@ -54,3 +55,34 @@ def ligantes(individuo):
         vlig.remove(0)
     
     return vlig
+
+def mutacao(f, l, tabela):
+ 
+    filho = f[:]
+    ativos = l[:]
+    genes_sorteados = []
+    nos_mutados = []
+    filho[IND_FIT] = -20
+
+    while True:
+        gene = random.randint(0, IND_SAIDA - 1)
+        nos_mutado = gene//3 + nvar
+        genes_sorteados.append(gene)
+        nos_mutados.append(nos_mutado)
+
+        if((gene + 1) % 3 == 0):
+            gene_novo = portas[random.randint(0, len(portas)-1)]
+            while(gene_novo == filho[gene]):
+                gene_novo = portas[random.randint(0, len(portas)-1)]
+            filho[gene] = gene_novo
+        else:
+            nova_conexao = random.randint(0, nos_mutado-1)
+            while(nova_conexao == filho[gene]):
+                nova_conexao = random.randint(0, nos_mutado-1)
+            filho[gene] = nova_conexao
+
+        if(nos_mutado in ativos):
+            break
+    
+    filho[IND_FIT] = simula(filho, tabela)[0]
+    return filho

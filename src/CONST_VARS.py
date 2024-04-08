@@ -1,11 +1,11 @@
-nvar = 4
+nvar = 3
 portas = ['AND', 'OR', 'XOR', 'NAND']
-nos = 10
+nos = 6
 nFilhos = 4
 
-minTermos = [0, 1, 3, 6, 7, 8, 10, 13]
+minTermos = [0, 1, 3]
 
-IND_TAM = nos * 3 * 2
+IND_TAM = nos * 3 + 2
 IND_SAIDA = nos * 3
 IND_FIT = nos * 3 + 1
 
