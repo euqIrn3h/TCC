@@ -1,60 +1,87 @@
-from CONST_VARS import *
-import random
-from evo import *
+import os
+import time
+import threading
 
-def main():
-    pai = ind[:]
-    pai[IND_FIT] = simula(pai, tabela)[0]
+inicio = time.time()
+print("1. Início do arquivo")
 
-    geracao = 0
-    while(pai[IND_FIT] < 2**nvar):
-        geracao = geracao + 1
-        
-        ativos = ligantes(pai)
-        filho = mutacao(pai, ativos, tabela)
+os.environ["KIVY_GL_BACKEND"] = "sdl2"
 
-        if(filho[IND_FIT] >= pai[IND_FIT]):
-            pai = filho[:]
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.properties import StringProperty, NumericProperty, BooleanProperty
+from kivy.lang import Builder
+from kivy.clock import Clock
+from algoritmo import executar_algoritmo
 
-    print(pai)
-
-random.seed(3)
-
-for i in range(IND_TAM):
-    ind.append(0)
-
-cont = nvar - 1
-
-for i in range(2, nos*3, 3):
-    ind[i-2] = random.randint(0,cont)
-    ind[i-1] = random.randint(0,cont)
-    ind[i] = portas[random.randint(0, len(portas)-1)]
-    cont = cont + 1
-
-ind[IND_SAIDA] = nos + nvar - 1
-ind[IND_FIT] = - 10
-
-tabela = []
-
-for i in range(SIM_NL):
-    linha = []
-    for j in range(SIM_NC):
-        linha.append(0)
-    tabela.append(linha)
-
-for i in range(SIM_NL - 3):
-    tabela[i][SIM_NC - 1] = i
-
-tabela[SIM_NL - 3][SIM_NC - 1] = 'SE'
-tabela[SIM_NL - 2][SIM_NC - 1] = 'SD'
-tabela[SIM_NL - 1][SIM_NC - 1] = 'CP'
-
-for i in range(nvar):
-    for j in range(2**i, 2**nvar, 2**(i+1)):
-        tabela[i][j:j + 2**i] = [1 for k in range(2**i)]
-
-for i in minTermos:
-    tabela[SIM_NL -2 ][i] = 1
+Builder.load_file("app.kv")
 
 
-main()
+
+class TelaPrincipal(BoxLayout):
+    resultado = StringProperty(
+        "Clique em 'Executar algoritmo' para gerar um circuito lógico."
+    )
+    progresso = NumericProperty(0)
+    progresso_texto = StringProperty("0%")
+    executando = BooleanProperty(False)
+
+    def executar(self):
+        if self.executando:
+            return
+
+        self.executando = True
+        self.progresso = 0
+        self.progresso_texto = "0%"
+        self.resultado = "Executando algoritmo...\nAguarde..."
+
+        thread = threading.Thread(target=self.executar_em_background, daemon=True)
+        thread.start()
+
+    def executar_em_background(self):
+        try:
+            res = executar_algoritmo(callback_progresso=self.receber_progresso)
+
+            texto = (
+                f"{res['mensagem']}\n"
+                f"{'-' * 40}\n"
+                f"Fitness: {res['fitness']}\n"
+                f"Gerações: {res['geracoes']}\n"
+                f"Nós ativos: {res['nos_ativos']}\n\n"
+                f"Expressão booleana:\n"
+                f"{res['expressao']}\n\n"
+                f"Indivíduo:\n"
+                f"{res['individuo']}"
+            )
+
+            Clock.schedule_once(lambda dt: self.finalizar_execucao(texto))
+
+        except Exception as e:
+            Clock.schedule_once(
+                lambda dt: self.finalizar_execucao(f"Erro ao executar:\n{str(e)}")
+            )
+
+    def receber_progresso(self, geracao_atual, total_geracoes):
+        percentual = int((geracao_atual / total_geracoes) * 100)
+        Clock.schedule_once(
+            lambda dt: self.atualizar_progresso(percentual)
+        )
+
+    def atualizar_progresso(self, percentual):
+        self.progresso = percentual
+        self.progresso_texto = f"{percentual}%"
+
+    def finalizar_execucao(self, texto):
+        self.progresso = 100
+        self.progresso_texto = "100%"
+        self.resultado = texto
+        self.executando = False
+
+class MeuApp(App):
+    def build(self):
+        return TelaPrincipal()
+
+
+if __name__ == "__main__":
+    MeuApp().run()
+    print("11. Depois do run:", time.time() - inicio)
