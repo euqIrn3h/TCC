@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Buildozer
+.buildozer/
+bin/
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
